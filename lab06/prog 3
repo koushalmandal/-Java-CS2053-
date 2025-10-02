@@ -1,0 +1,76 @@
+class MessageSender {
+
+    // Without synchronization
+    public void sendMessageUnsafe(String msg) {
+        for (char ch : msg.toCharArray()) {
+            System.out.print(ch);
+            try {
+                Thread.sleep(100); // simulate delay
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(); // move to next line after message
+    }
+
+    // With synchronization
+    public synchronized void sendMessageSafe(String msg) {
+        for (char ch : msg.toCharArray()) {
+            System.out.print(ch);
+            try {
+                Thread.sleep(100); // simulate delay
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
+    }
+}
+
+class MessageThread extends Thread {
+    private MessageSender sender;
+    private String message;
+    private boolean safeMode;
+
+    public MessageThread(MessageSender sender, String message, boolean safeMode, String name) {
+        super(name);
+        this.sender = sender;
+        this.message = message;
+        this.safeMode = safeMode;
+    }
+
+    @Override
+    public void run() {
+        if (safeMode) {
+            sender.sendMessageSafe(message);
+        } else {
+            sender.sendMessageUnsafe(message);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MessageSender sender = new MessageSender();
+
+        System.out.println("=== Without Synchronization ===");
+        Thread t1 = new MessageThread(sender, "Hello from Thread-1", false, "Thread-1");
+        Thread t2 = new MessageThread(sender, "Hi from Thread-2", false, "Thread-2");
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n=== With Synchronization ===");
+        MessageSender safeSender = new MessageSender();
+        Thread t3 = new MessageThread(safeSender, "Hello from Thread-1", true, "Thread-1");
+        Thread t4 = new MessageThread(safeSender, "Hi from Thread-2", true, "Thread-2");
+        t3.start();
+        t4.start();
+    }
+}
