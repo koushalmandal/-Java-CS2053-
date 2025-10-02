@@ -1,0 +1,79 @@
+class TicketBookingSystem {
+    private int availableTickets = 5;
+
+    // Book ticket without synchronization
+    public void bookTicketUnsafe(String user) {
+        if (availableTickets > 0) {
+            System.out.println(user + " is booking a ticket...");
+            try {
+                Thread.sleep(200); // simulate processing time
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            availableTickets--;
+            System.out.println(user + " successfully booked a ticket. Remaining: " + availableTickets);
+        } else {
+            System.out.println(user + " - Sorry, no tickets left!");
+        }
+    }
+
+    // Book ticket with synchronization
+    public synchronized void bookTicketSafe(String user) {
+        if (availableTickets > 0) {
+            System.out.println(user + " is booking a ticket...");
+            try {
+                Thread.sleep(200); // simulate processing time
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            availableTickets--;
+            System.out.println(user + " successfully booked a ticket. Remaining: " + availableTickets);
+        } else {
+            System.out.println(user + " - Sorry, no tickets left!");
+        }
+    }
+}
+
+class UserThread extends Thread {
+    private TicketBookingSystem system;
+    private String user;
+    private boolean safeMode;
+
+    public UserThread(TicketBookingSystem system, String user, boolean safeMode) {
+        this.system = system;
+        this.user = user;
+        this.safeMode = safeMode;
+    }
+
+    @Override
+    public void run() {
+        if (safeMode) {
+            system.bookTicketSafe(user);
+        } else {
+            system.bookTicketUnsafe(user);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        TicketBookingSystem system = new TicketBookingSystem();
+
+        System.out.println("=== Without Synchronization ===");
+        for (int i = 1; i <= 7; i++) {
+            new UserThread(system, "User-" + i, false).start();
+        }
+
+        try {
+            Thread.sleep(3000); // wait before next test
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n=== With Synchronization ===");
+        TicketBookingSystem safeSystem = new TicketBookingSystem();
+        for (int i = 1; i <= 7; i++) {
+            new UserThread(safeSystem, "User-" + i, true).start();
+        }
+    }
+}
