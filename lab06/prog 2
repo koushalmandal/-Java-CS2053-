@@ -1,0 +1,73 @@
+class Table {
+    // Without synchronization
+    public void printTableUnsafe(int n) {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(Thread.currentThread().getName() + " : " + n + " x " + i + " = " + (n * i));
+            try {
+                Thread.sleep(100); // simulate some delay
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // With synchronization
+    public synchronized void printTableSafe(int n) {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(Thread.currentThread().getName() + " : " + n + " x " + i + " = " + (n * i));
+            try {
+                Thread.sleep(100); // simulate some delay
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class TableThread extends Thread {
+    private Table table;
+    private int number;
+    private boolean safeMode;
+
+    public TableThread(Table table, int number, boolean safeMode, String name) {
+        super(name);
+        this.table = table;
+        this.number = number;
+        this.safeMode = safeMode;
+    }
+
+    @Override
+    public void run() {
+        if (safeMode) {
+            table.printTableSafe(number);
+        } else {
+            table.printTableUnsafe(number);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Table table = new Table();
+
+        System.out.println("=== Without Synchronization ===");
+        Thread t1 = new TableThread(table, 5, false, "Thread-1");
+        Thread t2 = new TableThread(table, 5, false, "Thread-2");
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n=== With Synchronization ===");
+        Table safeTable = new Table();
+        Thread t3 = new TableThread(safeTable, 5, true, "Thread-1");
+        Thread t4 = new TableThread(safeTable, 5, true, "Thread-2");
+        t3.start();
+        t4.start();
+    }
+}
