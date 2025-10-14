@@ -1,0 +1,25 @@
+public class WrapperDemo {
+    public static void main(String[] args) {
+        // 1. Using Wrapper Class explicitly
+        Integer wrappedInt = Integer.valueOf(100);  // Boxing manually
+        int primitiveInt = wrappedInt.intValue();   // Unboxing manually
+
+        System.out.println("Wrapped Integer: " + wrappedInt);
+        System.out.println("Primitive int: " + primitiveInt);
+
+        // 2. Autoboxing - automatic conversion from int to Integer
+        Integer autoBoxedInt = 200;  // compiler does Integer.valueOf(200) internally
+        System.out.println("Autoboxed Integer: " + autoBoxedInt);
+
+        // 3. Auto-unboxing - automatic conversion from Integer to int
+        int autoUnboxedInt = autoBoxedInt;  // compiler does autoBoxedInt.intValue() internally
+        System.out.println("Auto-unboxed int: " + autoUnboxedInt);
+
+        // 4. Using in collections - only objects allowed, autoboxing helps
+        java.util.List<Integer> list = new java.util.ArrayList<>();
+        list.add(300);  // int 300 autoboxed to Integer
+        int valueFromList = list.get(0);  // Integer auto-unboxed to int
+
+        System.out.println("Value from list: " + valueFromList);
+    }
+}
